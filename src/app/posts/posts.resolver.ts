@@ -52,7 +52,7 @@ export class PostsResolver {
   }
 
   @Mutation(() => Post)
-  @UseGuards(new GqlAuthGuard())
+  @UseGuards(GqlAuthGuard)
   async newPost(@CurrentUser() user: User, @Args('newPostInput') newPostInput: NewPostInput): Promise<Post> {
     if (this.userService.findOne(user.username)!) {
       throw new NotFoundException('Username may not exist or password incorrect');
@@ -62,7 +62,7 @@ export class PostsResolver {
   }
 
   @Mutation(() => Comment)
-  @UseGuards(new GqlAuthGuard())
+  @UseGuards(GqlAuthGuard)
   async newComment(
     @CurrentUser() user: User,
     @Args('newCommentInput')

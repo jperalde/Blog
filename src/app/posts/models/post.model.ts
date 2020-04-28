@@ -1,6 +1,6 @@
 import { ObjectType, Field } from '@nestjs/graphql';
 import { DataInterface } from '../../shared/model/data.model';
-import { Comment } from '../comentarios/models/comments.model';
+import { Comment } from '../comments/models/comments.model';
 
 @ObjectType({ implements: DataInterface })
 export class Post implements DataInterface {

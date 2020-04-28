@@ -13,6 +13,10 @@ const def: Config = {
     loggerLevel: 'warn',
   },
   jwtConfig: { secret: 'SECRET', signOptions: { expiresIn: '24h' } },
+  graphqlConfig: { autoSchemaFile: true, context: ({ req }): { req: any } => ({ req }) },
+  mongooseConfig: {
+    uri: 'mongodb://root:example@localhost:27017',
+  },
 };
 
 export default def;

@@ -1,28 +1,309 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
+# Blog
 
-[travis-image]: https://api.travis-ci.org/nestjs/nest.svg?branch=master
-[travis-url]: https://travis-ci.org/nestjs/nest
-[linux-image]: https://img.shields.io/travis/nestjs/nest/master.svg?label=linux
-[linux-url]: https://travis-ci.org/nestjs/nest
+This project shows how to create an application using devon4node with GraphQL as the API language, more exactly using the code-first method, and MongoDB as its database, using the Mongoose object Modeling tool.
+The application works as a common blog that allows everyone to see the last 5 posts and all their comments and answers to those comments, search a post by its ID, search all the posts related to one topic and, last but not least, search a comment by its ID. The application uses authorization modules, this way it only allows authenticated users to make the mutations but allowing everyone to make the queries. Mutations are simple:
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="blank">Node.js</a> framework for building efficient and scalable server-side applications, heavily inspired by <a href="https://angular.io" target="blank">Angular</a>.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore"><img src="https://img.shields.io/npm/dm/@nestjs/core.svg" alt="NPM Downloads" /></a>
-<a href="https://travis-ci.org/nestjs/nest"><img src="https://api.travis-ci.org/nestjs/nest.svg?branch=master" alt="Travis" /></a>
-<a href="https://travis-ci.org/nestjs/nest"><img src="https://img.shields.io/travis/nestjs/nest/master.svg?label=linux" alt="Linux" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#5" alt="Coverage" /></a>
-<a href="https://gitter.im/nestjs/nestjs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge"><img src="https://badges.gitter.im/nestjs/nestjs.svg" alt="Gitter" /></a>
-<a href="https://opencollective.com/nest#backer"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec"><img src="https://img.shields.io/badge/Donate-PayPal-dc3d53.svg"/></a>
-  <a href="https://twitter.com/nestframework"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+- Create a new User
+- Create a post
+- Add a comment in that post
+- Add an answer to the comment
+
+## Getting Started
+
+1. To download this repository:
+
+`git clone https://github.com/aunnolose`
+
+2. Then to run the application on your system:
+
+```
+cd blog
+docker-compose up -d
+yarn start
+```
+
+3. To make all the petitions you need to use [GraphQLPlayground](http://localhost:3000/graphql)
+
+### Mutation
+
+For mutations you need to follow a few steps:
+
+1. First you need to create a new User, for this you'll have to do a mutation:
+
+```
+mutation {
+  newUser(
+    newUserInput: {
+      username:"Jorge Peral"
+      password:"<insert password here>"
+    }
+  ) {
+    username
+  }
+}
+
+```
+
+2. Now you have to send an HTTPS request with Postman like this:
+
+[![postman-request](screenshots/postman.jpg)]
+
+This will return the Bearer in the headers
+
+[![postman-headers](screenshots/postman-headers.jpg)]
+
+Copy it
+
+3. Go to [GraphQLPlayground](http://localhost:3000/graphql) and paste it to your HTTP HEADERS section as shown bellow:
+
+```json
+{
+  "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpvcmdlIiwicm9sZSI6MCwiaWF0IjoxNTg3MTIwNzQ1LCJleHAiOjE1ODcyMDcxNDV9.HoQMvZDMGJ7LwiNjJwm5H_3OO8LLUiUmoEIMzv09yIM"
+}
+```
+
+This will grant you access to the users' spectrum.
+
+4. Now you can do whatever mutation you want:
+
+4.1. newPost:
+
+```
+mutation {
+newPost(
+  newPostInput: {
+    title: "How to program with GraphQL"
+    author: "Jorge Peral"
+    text: "hello everyone"
+    categories: ["GraphQL", "Mongoose", "NestJS"]
+  }
+) {
+  id
+  author
+  title
+  categories
+  createdAt
+  updatedAt
+  text
+}
+}
+
+```
+
+4.2. newComment
+
+```
+mutation {
+  newComment(
+    newCommentInput: {
+      idPost: "<ID from the POST you want to comment>"
+      title: "How to program with GraphQL"
+      author: "Jorge Peral"
+      text: "hello everyone"
+    }
+  ) {
+    id
+    author
+    title
+    createdAt
+    updatedAt
+    text
+  }
+}
+```
+
+4.3. newAnswer
+
+```
+mutation {
+  newAnswer(
+    newAnswerInput: {
+      idComment: "<ID from the POST you want to comment>"
+      author: "Jorge Peral"
+      text: "hello everyone"
+    }
+  ) {
+    id
+    author
+    createdAt
+    updatedAt
+    text
+  }
+}
+```
+
+### Query
+
+There are _four_ simple _queries_:
+
+1. allPosts: this query returns the last five posts created with all the comments.
+
+```
+query {
+  allPosts {
+    id
+    author
+    title
+    categories
+    createdAt
+    updatedAt
+    text
+    comments {
+      id
+      author
+      title
+      createdAt
+      updatedAt
+      text
+      answers {
+        id
+        author
+        createdAt
+        updatedAt
+        text
+      }
+    }
+  }
+}
+```
+
+2. postOfId
+
+```
+query {
+  postOfId(id: "<string-idPost>") {
+    author
+    title
+    categories
+    createdAt
+    updatedAt
+    text
+    comments {
+      id
+      author
+      title
+      createdAt
+      updatedAt
+      text
+      answers {
+        id
+        author
+        createdAt
+        updatedAt
+        text
+      }
+    }
+  }
+}
+
+```
+
+3. postOfTopic
+
+```
+query {
+  postsOfTopic(category:"<string-category>") {
+    author
+    title
+    categories
+    createdAt
+    updatedAt
+    text
+    comments {
+      id
+      author
+      title
+      createdAt
+      updatedAt
+      text
+      answers {
+        id
+        author
+        createdAt
+        updatedAt
+        text
+      }
+    }
+  }
+}
+
+```
+
+4. commentOfId:
+
+```
+query {
+  commentOfId(id: "<string-id>") {
+    author
+    title
+    categories
+    createdAt
+    updatedAt
+    text
+    answers {
+      id
+      author
+      createdAt
+      updatedAt
+      text
+    }
+  }
+}
+
+```
+
+### Code style
+
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://github.com/feross/standard)
+
+## Creating the app
+
+A step by step guide on how to create the app yourself, from Zero-to-Hero
+
+### Application requisites
+
+The employee application needs:
+
+- A configuration module
+
+- Security: CORS
+
+- Authentication using JWT
+
+- GraphQL support
+
+- Mongoose (MongoDB object modeling tool)
+
+- Docker
+
+1. Install devon4node CLI
+
+Execute the command npm i -g @devon4node/cli
+
+2. Create a new application
+
+Execute the command `devon4node new blog`
+
+3. Then, you need to select the components interactively.
+
+4. Once you have created the project, install the GraphQL and Mongoose packages:
+
+Execute the following commands:
+
+```
+yarn add @nestjs/graphql graphql-tools graphql
+yarn add @nestjs/mongoose mongoose
+yarn add -D @types/mongoose
+```
+
+You must also install `apollo-server-express`.
+
+5. Then to run the application on your system:
+
+```
+cd blog
+docker-compose up -d
+```
 
 ## Description
 
@@ -31,45 +312,31 @@
 ## Installation
 
 ```bash
-$ npm install
+$ yarn add
 ```
 
 ## Running the app
 
 ```bash
 # development
-$ npm run start
+$ yarn start
 
 # watch mode
-$ npm run start:dev
+$ yarn start:dev
 
 # production mode
-$ npm run start:prod
+$ yarn start:prod
 ```
 
-## Test
+## Authors
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- **Jorge Peral** - _Initial work_ - [jperalde](https://github.com/jperalde)
+- **Alberto Beltran** - _Initial work_ - [Albelpin](https://github.com/Albelpin)
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+Apache-2.0 [LICENSE](LICENSE.txt)
+
+## Acknowledgments
+
+- **Dario Rodriguez** - _Contributor_ - [dario-rodriguez](https://https://github.com/dario-rodriguez)

@@ -1,7 +1,9 @@
 import { BaseConfig } from '@devon4node/config';
-import { Type } from 'class-transformer';
-import { IsBoolean, IsIn, IsOptional, IsString, ValidateNested, IsDefined, IsNotEmptyObject } from 'class-validator';
+import { GqlModuleOptions } from '@nestjs/graphql';
 import { JwtModuleOptions } from '@nestjs/jwt';
+import { MongooseModuleOptions } from '@nestjs/mongoose';
+import { Type } from 'class-transformer';
+import { IsBoolean, IsDefined, IsIn, IsNotEmptyObject, IsOptional, IsString, ValidateNested } from 'class-validator';
 
 export class LoggerConfiguration {
   @IsOptional()
@@ -26,4 +28,6 @@ export class Config extends BaseConfig {
   @IsDefined()
   @IsNotEmptyObject()
   jwtConfig!: JwtModuleOptions;
+  mongooseConfig!: MongooseModuleOptions;
+  graphqlConfig!: GqlModuleOptions;
 }
